@@ -1,0 +1,53 @@
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <dirent.h>
+
+#include <switch.h>
+
+int main(int argc, char **argv)
+{
+	gfxInitDefault();
+
+	//Initialize console. Using NULL as the second argument tells the console library to use the internal console structure as current one.
+	consoleInit(NULL);
+
+	DIR *dp;
+	struct dirent *current_dirent;
+	dp = opendir(""); // opens $PWD
+	
+	if (dp == NULL) return -1;
+	
+	//realpath("", actualPath);
+
+	printf("starting print\n");
+	while ( (current_dirent = readdir(dp)) ){
+		printf("%s\n", current_dirent->d_name);
+	}
+	printf("directories printed\n");
+
+	//Move the cursor to row 16 and column 20 and then prints "Hello World!"
+	//To move the cursor you have to print "\x1b[r;cH", where r and c are respectively
+	//the row and column where you want your cursor to move
+	//printf("\x1b[16;20HHello World!");
+
+	while(appletMainLoop())
+	{
+		//Scan all the inputs. This should be done once for each frame
+		hidScanInput();
+
+		//hidKeysDown returns information about which buttons have been just pressed (and they weren't in the previous frame)
+		u32 kDown = hidKeysDown(CONTROLLER_P1_AUTO);
+
+		if (kDown & KEY_PLUS) break;
+		printf("NONE BABY\r"); // break in order to return to hbmenu
+
+		gfxFlushBuffers();
+		gfxSwapBuffers();
+		gfxWaitForVsync();
+	}
+
+	gfxExit();
+	return 0;
+}
+
